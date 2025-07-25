@@ -59,6 +59,105 @@ main {
   gap: 20px;
 }
 
+/* Puzzle name input */
+.puzzle-name-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.puzzle-name-input label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.puzzle-name-input input {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.puzzle-name-input input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Clue input section */
+.clue-input-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e9ecef;
+}
+
+.clue-input-section h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+.clue-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.clue-input-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 15px;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.clue-word {
+  font-weight: 600;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clue-input-field {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.clue-input-field:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Puzzle header */
+.puzzle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.puzzle-header h2 {
+  margin-bottom: 0;
+}
+
+.puzzle-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 #wordInput {
   width: 100%;
   padding: 15px;
@@ -130,6 +229,8 @@ main {
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .grid-row {
@@ -148,6 +249,7 @@ main {
   text-transform: uppercase;
   background-color: white;
   position: relative;
+  flex-shrink: 0;
 }
 
 .grid-cell.black {
@@ -241,6 +343,95 @@ main {
   font-weight: bold;
 }
 
+/* Print styles */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .container {
+    max-width: none;
+    padding: 0;
+  }
+
+  .input-section,
+  .puzzle-header button,
+  .input-controls,
+  .puzzle-stats,
+  .puzzle-name-input {
+    display: none !important;
+  }
+
+  .puzzle-section {
+    display: block !important;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .puzzle-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .crossword-grid {
+    box-shadow: none;
+    border: 2px solid black;
+    padding: 15px;
+    display: inline-block;
+    background: white;
+  }
+
+  .grid-cell {
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .grid-cell.black {
+    background-color: black;
+    border-color: black;
+  }
+
+  .clue-item {
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+  }
+
+  .puzzle-stats {
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+  }
+
+  .clue-section h3 {
+    color: black;
+    border-bottom-color: black;
+  }
+
+  .clue-number {
+    color: black !important;
+  }
+
+  .clue-text {
+    color: black;
+  }
+
+  .stat-label,
+  .stat-value {
+    color: black !important;
+  }
+
+  /* Add page break before puzzle */
+  .puzzle-section {
+    page-break-before: always;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .container {
@@ -265,10 +456,55 @@ main {
     flex-direction: column;
   }
 
+  .clue-input-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .puzzle-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .puzzle-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .puzzle-controls .btn {
+    width: 100%;
+  }
+
   .grid-cell {
     width: 35px;
     height: 35px;
     font-size: 16px;
+  }
+
+  .cell-number {
+    font-size: 8px;
+  }
+}
+
+/* Large grid adjustments */
+@media (min-width: 1200px) {
+  .grid-cell {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .cell-number {
+    font-size: 9px;
+  }
+}
+
+/* Extra large grid adjustments */
+@media (min-width: 1400px) {
+  .grid-cell {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
   }
 
   .cell-number {

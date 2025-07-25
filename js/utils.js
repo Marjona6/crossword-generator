@@ -66,35 +66,77 @@ class Utils {
   }
 
   /**
-   * Check if placing a word creates valid intersections
+   * Check if placing a word creates valid intersections and follows crossword rules
    * @param {string} word - Word to check
    * @param {number} row - Starting row position
    * @param {number} col - Starting column position
    * @param {boolean} isHorizontal - Whether the word is horizontal
    * @param {Array} grid - Current grid state
-   * @returns {boolean} True if word creates valid intersections
+   * @returns {boolean} True if placement is valid
    */
-  static hasValidIntersections(word, row, col, isHorizontal, grid) {
+  static hasValidWordBoundaries(word, row, col, isHorizontal, grid) {
     const wordLength = word.length;
     let hasIntersection = false;
 
     for (let i = 0; i < wordLength; i++) {
       const currentRow = isHorizontal ? row : row + i;
       const currentCol = isHorizontal ? col + i : col;
+      const currentChar = word[i];
 
       // Check if this position already has a letter (intersection)
       if (grid[currentRow][currentCol] !== null) {
+        // Must match the existing letter
+        if (grid[currentRow][currentCol] !== currentChar) {
+          return false;
+        }
         hasIntersection = true;
         continue;
       }
 
-      // Check adjacent cells for potential conflicts
-      const adjacentPositions = this.getAdjacentPositions(currentRow, currentCol, isHorizontal);
+      // Check for adjacent letters that would create invalid adjacency
+      if (isHorizontal) {
+        // For horizontal words, check above and below for adjacent letters
+        const aboveRow = currentRow - 1;
+        const belowRow = currentRow + 1;
 
+        if (this.isValidPosition(aboveRow, currentCol, grid) && grid[aboveRow][currentCol] !== null) {
+          // Check if there's a word above that would be adjacent
+          if (!this.hasWordEndingAt(aboveRow, currentCol, grid, false)) {
+            return false;
+          }
+        }
+
+        if (this.isValidPosition(belowRow, currentCol, grid) && grid[belowRow][currentCol] !== null) {
+          // Check if there's a word below that would be adjacent
+          if (!this.hasWordEndingAt(belowRow, currentCol, grid, false)) {
+            return false;
+          }
+        }
+      } else {
+        // For vertical words, check left and right for adjacent letters
+        const leftCol = currentCol - 1;
+        const rightCol = currentCol + 1;
+
+        if (this.isValidPosition(currentRow, leftCol, grid) && grid[currentRow][leftCol] !== null) {
+          // Check if there's a word to the left that would be adjacent
+          if (!this.hasWordEndingAt(currentRow, leftCol, grid, true)) {
+            return false;
+          }
+        }
+
+        if (this.isValidPosition(currentRow, rightCol, grid) && grid[currentRow][rightCol] !== null) {
+          // Check if there's a word to the right that would be adjacent
+          if (!this.hasWordEndingAt(currentRow, rightCol, grid, true)) {
+            return false;
+          }
+        }
+      }
+
+      // Check for valid intersections (letters that connect to existing words)
+      const adjacentPositions = this.getAdjacentPositions(currentRow, currentCol, isHorizontal);
       for (const [adjRow, adjCol] of adjacentPositions) {
         if (this.isValidPosition(adjRow, adjCol, grid) && grid[adjRow][adjCol] !== null) {
           hasIntersection = true;
-          break;
         }
       }
     }
@@ -135,24 +177,63 @@ class Utils {
   }
 
   /**
+   * Check if there's a word ending at a specific position
+   * @param {number} row - Row position
+   * @param {number} col - Column position
+   * @param {Array} grid - Grid to check
+   * @param {boolean} isHorizontal - Whether to check for horizontal words
+   * @returns {boolean} True if there's a word ending at this position
+   */
+  static hasWordEndingAt(row, col, grid, isHorizontal) {
+    if (isHorizontal) {
+      // Check for horizontal word ending at this position
+      let wordLength = 0;
+      let currentCol = col;
+
+      // Count backwards to find word start
+      while (currentCol >= 0 && grid[row][currentCol] !== null) {
+        wordLength++;
+        currentCol--;
+      }
+
+      // Check if this forms a complete word (at least 2 letters)
+      return wordLength >= 2;
+    } else {
+      // Check for vertical word ending at this position
+      let wordLength = 0;
+      let currentRow = row;
+
+      // Count backwards to find word start
+      while (currentRow >= 0 && grid[currentRow][col] !== null) {
+        wordLength++;
+        currentRow--;
+      }
+
+      // Check if this forms a complete word (at least 2 letters)
+      return wordLength >= 2;
+    }
+  }
+
+  /**
    * Calculate grid dimensions based on words
    * @param {string[]} words - Array of words
    * @returns {Object} Object with rows and cols properties
    */
   static calculateGridSize(words) {
     if (!words || words.length === 0) {
-      return { rows: 10, cols: 10 };
+      return { rows: 20, cols: 20 }; // Larger default size
     }
 
     const maxWordLength = Math.max(...words.map((word) => word.length));
     const totalWords = words.length;
 
-    // Estimate grid size based on word count and length
-    const estimatedSize = Math.max(maxWordLength + 2, Math.ceil(Math.sqrt(totalWords * maxWordLength * 2)));
+    // Estimate grid size based on word count and length with more generous spacing
+    const baseSize = Math.max(maxWordLength + 4, Math.ceil(Math.sqrt(totalWords * maxWordLength * 3)));
+    const estimatedSize = Math.floor(baseSize * 1.5); // Add 50% more space
 
     return {
-      rows: Math.min(estimatedSize, 30), // Cap at reasonable size
-      cols: Math.min(estimatedSize, 30),
+      rows: Math.min(estimatedSize, 50), // Increased cap for larger puzzles
+      cols: Math.min(estimatedSize, 50),
     };
   }
 

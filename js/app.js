@@ -12,7 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set sample words in the textarea
   const wordInput = document.getElementById("wordInput");
+  const puzzleNameInput = document.getElementById("puzzleName");
   wordInput.value = sampleWords.join("\n");
+  puzzleNameInput.value = "Sample Crossword Puzzle";
 
   // Add a helpful message
   console.log("Crossword Puzzle Generator loaded successfully!");

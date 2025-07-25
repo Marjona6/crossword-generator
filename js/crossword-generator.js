@@ -189,8 +189,8 @@ class CrosswordGenerator {
       return false;
     }
 
-    // Check if word creates at least one intersection (except for first word)
-    if (this.placedWords.length > 0 && !Utils.hasValidIntersections(word, row, col, isHorizontal, this.grid)) {
+    // Check if word follows proper crossword rules (except for first word)
+    if (this.placedWords.length > 0 && !Utils.hasValidWordBoundaries(word, row, col, isHorizontal, this.grid)) {
       return false;
     }
 

@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crossword Puzzle Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      // Ensure jsPDF is available globally
+      window.addEventListener("load", function () {
+        if (typeof window.jspdf === "undefined") {
+          console.error("jsPDF failed to load");
+        }
+      });
+    </script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -16,16 +25,34 @@
         <section class="input-section">
           <h2>Enter Your Words</h2>
           <div class="word-input-container">
+            <div class="puzzle-name-input">
+              <label for="puzzleName">Puzzle Name (optional):</label>
+              <input type="text" id="puzzleName" placeholder="Crossword Puzzle" maxlength="50" />
+            </div>
             <textarea id="wordInput" placeholder="Enter words, one per line or separated by commas..." rows="8"></textarea>
             <div class="input-controls">
               <button id="generateBtn" class="btn btn-primary">Generate Crossword</button>
               <button id="clearBtn" class="btn btn-secondary">Clear</button>
             </div>
           </div>
+
+          <div class="clue-input-section" id="clueInputSection" style="display: none">
+            <h3>Add Clues for Your Words</h3>
+            <div id="clueInputs" class="clue-inputs"></div>
+            <div class="input-controls">
+              <button id="regenerateBtn" class="btn btn-primary">Regenerate with Clues</button>
+            </div>
+          </div>
         </section>
 
         <section class="puzzle-section" id="puzzleSection" style="display: none">
-          <h2>Your Crossword Puzzle</h2>
+          <div class="puzzle-header">
+            <h2>Your Crossword Puzzle</h2>
+            <div class="puzzle-controls">
+              <button id="printBtn" class="btn btn-primary">Print Puzzle</button>
+              <button id="downloadPdfBtn" class="btn btn-primary">Download PDF</button>
+            </div>
+          </div>
           <div class="puzzle-container">
             <div id="crosswordGrid" class="crossword-grid"></div>
             <div class="puzzle-info">

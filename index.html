@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crossword Puzzle Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Crossword Puzzle Generator</h1>
+      </header>
+
+      <main>
+        <section class="input-section">
+          <h2>Enter Your Words</h2>
+          <div class="word-input-container">
+            <textarea id="wordInput" placeholder="Enter words, one per line or separated by commas..." rows="8"></textarea>
+            <div class="input-controls">
+              <button id="generateBtn" class="btn btn-primary">Generate Crossword</button>
+              <button id="clearBtn" class="btn btn-secondary">Clear</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="puzzle-section" id="puzzleSection" style="display: none">
+          <h2>Your Crossword Puzzle</h2>
+          <div class="puzzle-container">
+            <div id="crosswordGrid" class="crossword-grid"></div>
+            <div class="puzzle-info">
+              <div class="clues">
+                <div class="clue-section">
+                  <h3>Across</h3>
+                  <div id="acrossClues" class="clue-list"></div>
+                </div>
+                <div class="clue-section">
+                  <h3>Down</h3>
+                  <div id="downClues" class="clue-list"></div>
+                </div>
+              </div>
+              <div class="puzzle-stats">
+                <h3>Puzzle Statistics</h3>
+                <div id="puzzleStats"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/crossword-generator.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

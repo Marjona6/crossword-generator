@@ -19,8 +19,8 @@ class CrosswordGenerator {
       throw new Error("No words provided");
     }
 
-    // Sort words by length (longest first) for better placement
-    const sortedWords = [...words].sort((a, b) => b.length - a.length);
+    // Sort words by intersection potential (words with more common letters first)
+    const sortedWords = this.sortWordsByIntersectionPotential(words);
 
     // Calculate grid size
     const gridSize = Utils.calculateGridSize(sortedWords);
@@ -57,6 +57,78 @@ class CrosswordGenerator {
         this.grid[i][j] = null;
       }
     }
+  }
+
+  /**
+   * Sort words by their potential for creating good intersections
+   * @param {string[]} words - Words to sort
+   * @returns {string[]} Sorted words
+   */
+  sortWordsByIntersectionPotential(words) {
+    // Letter frequency in English (approximate)
+    const letterFrequency = {
+      E: 12.02,
+      T: 9.1,
+      A: 8.12,
+      O: 7.68,
+      I: 7.31,
+      N: 6.95,
+      S: 6.28,
+      R: 6.02,
+      H: 5.92,
+      D: 4.32,
+      L: 3.98,
+      U: 2.88,
+      C: 2.71,
+      M: 2.61,
+      W: 2.3,
+      F: 2.11,
+      G: 2.09,
+      Y: 2.11,
+      P: 1.82,
+      B: 1.49,
+      V: 1.11,
+      K: 0.69,
+      J: 0.1,
+      X: 0.1,
+      Q: 0.1,
+      Z: 0.07,
+    };
+
+    return [...words].sort((a, b) => {
+      const aScore = this.calculateWordIntersectionScore(a, letterFrequency);
+      const bScore = this.calculateWordIntersectionScore(b, letterFrequency);
+
+      // Sort by intersection potential first, then by length
+      if (Math.abs(aScore - bScore) > 0.1) {
+        return bScore - aScore;
+      }
+      return b.length - a.length;
+    });
+  }
+
+  /**
+   * Calculate intersection potential score for a word
+   * @param {string} word - Word to score
+   * @param {Object} letterFrequency - Letter frequency data
+   * @returns {number} Intersection potential score
+   */
+  calculateWordIntersectionScore(word, letterFrequency) {
+    let score = 0;
+    const wordLength = word.length;
+
+    for (let i = 0; i < wordLength; i++) {
+      const letter = word[i].toUpperCase();
+      const frequency = letterFrequency[letter] || 0;
+
+      // Prefer middle positions for common letters
+      const positionInWord = i / (wordLength - 1);
+      const middlePreference = 1 - Math.abs(positionInWord - 0.5) * 2;
+
+      score += frequency * middlePreference;
+    }
+
+    return score;
   }
 
   /**
@@ -105,11 +177,11 @@ class CrosswordGenerator {
       return false;
     }
 
-    // Sort positions by quality (prefer intersections)
+    // Sort positions by quality (prefer middle intersections)
     positions.sort((a, b) => {
-      const aIntersections = this.countIntersections(word, a.row, a.col, a.isHorizontal);
-      const bIntersections = this.countIntersections(word, b.row, b.col, b.isHorizontal);
-      return bIntersections - aIntersections;
+      const aScore = this.calculatePositionScore(word, a.row, a.col, a.isHorizontal);
+      const bScore = this.calculatePositionScore(word, b.row, b.col, b.isHorizontal);
+      return bScore - aScore;
     });
 
     // Try the best positions first
@@ -173,6 +245,43 @@ class CrosswordGenerator {
     }
 
     return intersections;
+  }
+
+  /**
+   * Calculate a score for a word position that prefers middle intersections
+   * @param {string} word - Word to check
+   * @param {number} row - Starting row
+   * @param {number} col - Starting column
+   * @param {boolean} isHorizontal - Whether word is horizontal
+   * @returns {number} Position score (higher is better)
+   */
+  calculatePositionScore(word, row, col, isHorizontal) {
+    const wordLength = word.length;
+    let totalScore = 0;
+    let intersectionCount = 0;
+
+    for (let i = 0; i < wordLength; i++) {
+      const currentRow = isHorizontal ? row : row + i;
+      const currentCol = isHorizontal ? col + i : col;
+
+      if (this.grid[currentRow][currentCol] !== null) {
+        intersectionCount++;
+
+        // Calculate position within word (0 to 1, where 0.5 is the middle)
+        const positionInWord = i / (wordLength - 1);
+
+        // Prefer middle positions - create a bell curve centered at 0.5
+        // This gives higher scores to intersections in the middle of the word
+        const middlePreference = 1 - Math.abs(positionInWord - 0.5) * 2;
+
+        // Add bonus for middle intersections
+        totalScore += middlePreference;
+      }
+    }
+
+    // Base score is the number of intersections
+    // But we heavily weight the middle preference
+    return intersectionCount * 10 + totalScore * 100;
   }
 
   /**
